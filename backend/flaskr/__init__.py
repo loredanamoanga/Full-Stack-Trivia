@@ -13,14 +13,14 @@ __all__ = [setup_db, Question, Category]
 QUESTIONS_PER_PAGE = 10
 
 
-def paginate_books(request):
+def paginate_questions(request):
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
 
     questions = get_question_list()
-    current_books = questions[start:end]
-    return current_books
+    current_questions = questions[start:end]
+    return current_questions
 
 
 def get_category_list():
@@ -65,7 +65,7 @@ def create_app(test_config=None):
     @app.route('/questions', methods=['GET'])
     def get_questions():
         questions = get_question_list()
-        paginated_questions = paginate_books(request)
+        paginated_questions = paginate_questions(request)
         if len(paginated_questions) == 0:
             abort(404)
 
@@ -88,6 +88,26 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions. 
     '''
+
+    @app.route('/questions/<int:question_id>', methods=['GET', 'DELETE'])
+    def delete_question(question_id):
+        try:
+            question = Question.query.filter(Question.id == question_id).one_or_none()
+
+            if question is None:
+                abort(404)
+
+            question.delete()
+            current_questions = paginate_questions(request)
+
+            return jsonify({
+                'success': True,
+                'deleted': question_id,
+                'questions': current_questions,
+                'total_questions': len(Question.query.all())
+            })
+        except:
+            abort(422)
 
     '''
     @TODO: 
