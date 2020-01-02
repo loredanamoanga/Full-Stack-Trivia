@@ -118,22 +118,24 @@ def create_app(test_config=None):
         body = request.get_json()
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
-        new_category = body.get('category', None)
         new_difficulty = body.get('difficulty', None)
+        new_category = body.get('category', None)
 
         try:
-            question = Question(question=new_question, answer=new_answer, category=new_category,
-                                difficulty=new_difficulty,
-                                )
+
+            question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty,
+                                category=new_category)
+            print(question)
             question.insert()
-            questions_list = Question.query.all()
-            paginated_questions = paginate_questions(request, questions_list)
+            questions = Question.query.all()
+            paginated_questions = paginate_questions(request, questions)
 
             return jsonify({
                 'success': True,
                 'created': question.id,
+                'id': question.id,
                 'questions': paginated_questions,
-                'total_questions': len(Question.query.all())
+                'total_questions': len(paginated_questions)
             })
 
         except:
@@ -200,6 +202,40 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that 
     category to be shown. 
     '''
+
+    @app.route('/quizzes', methods=['POST'])
+    def get_quiz_by_category():
+        try:
+            body = request.get_json()
+            previous_questions = body.get('previous_questions', [])
+            quiz_category = body.get('quiz_category')
+
+            category_id = quiz_category.get('id', 0)
+
+            if category_id == 0:
+                questions_list = Question.query.all()
+            else:
+                questions_list = Question.query.filter(Question.category == category_id).all()
+
+            paginated_questions = paginate_questions(request, questions_list)
+
+            filtered_questions = list(
+                filter(
+                    lambda question:
+                    question.get('id') not in previous_questions, paginated_questions
+                )
+            )
+
+            filtered_question = random.choice(filtered_questions) \
+                if filtered_questions else None
+
+            return jsonify({
+                'question': filtered_question,
+                'success': True
+            })
+
+        except Exception as exp:
+            abort(422)
 
     '''
     @TODO: 
