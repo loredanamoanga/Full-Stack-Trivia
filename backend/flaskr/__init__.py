@@ -13,23 +13,40 @@ __all__ = [setup_db, Question, Category]
 QUESTIONS_PER_PAGE = 10
 
 
+def paginate_books(request):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = get_question_list()
+    current_books = questions[start:end]
+    return current_books
+
+
+def get_category_list():
+    categories = {}
+    for category in Category.query.all():
+        categories[category.id] = category.type
+    return categories
+
+
+def get_question_list():
+    questions = Question.query.all()
+    formatted_questions = [question.format() for question in questions]
+    return formatted_questions
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
+    CORS(app)
 
-    '''
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    '''
-    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-    '''
-    @TODO: Use the after_request decorator to set Access-Control-Allow
-    '''
-
+    # CORS Headers
     @app.after_request
     def after_request(response):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
 
     '''
@@ -37,17 +54,6 @@ def create_app(test_config=None):
     Create an endpoint to handle GET requests 
     for all available categories.
     '''
-
-    def get_category_list():
-        categories = {}
-        for category in Category.query.all():
-            categories[category.id] = category.type
-        return categories
-
-    def get_question_list():
-        questions = Question.query.all()
-        formatted_questions = [question.format() for question in questions]
-        return formatted_questions
 
     @app.route('/categories', methods=['GET'])
     def get_categories():
@@ -58,14 +64,14 @@ def create_app(test_config=None):
 
     @app.route('/questions', methods=['GET'])
     def get_questions():
-        page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 10
-        end = start + 10
         questions = get_question_list()
+        paginated_questions = paginate_books(request)
+        if len(paginated_questions) == 0:
+            abort(404)
+
         return jsonify({
             'success': True,
-            'questions': questions[start:end],
-            'page': page,
+            'questions': paginated_questions,
             'total_questions': len(questions),
             'categories': get_category_list()
         })
