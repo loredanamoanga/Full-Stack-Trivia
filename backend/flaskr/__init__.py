@@ -89,7 +89,7 @@ def create_app(test_config=None):
     Clicking on the page numbers should update the questions. 
     '''
 
-    @app.route('/questions/<int:question_id>', methods=['GET', 'DELETE'])
+    @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         try:
             question = Question.query.filter(Question.id == question_id).one_or_none()
@@ -116,6 +116,32 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page. 
     '''
+
+    @app.route('/questions', methods=['POST'])
+    def create_question():
+        body = request.get_json()
+        print(body)
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_category = body.get('category', None)
+        new_difficulty = body.get('difficulty', None)
+
+        try:
+            question = Question(question=new_question, answer=new_answer, category=new_category,
+                                difficulty=new_difficulty,
+                                )
+            question.insert()
+            paginated_questions = paginate_questions(request)
+
+            return jsonify({
+                'success': True,
+                'created': question.id,
+                'questions': paginated_questions,
+                'total_questions': len(Question.query.all())
+            })
+
+        except:
+            abort(422)
 
     '''
     @TODO: 
