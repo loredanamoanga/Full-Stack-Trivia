@@ -1,6 +1,7 @@
 import os
 from http.client import HTTPException
 
+import flask
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -13,14 +14,14 @@ __all__ = [setup_db, Question, Category]
 QUESTIONS_PER_PAGE = 10
 
 
-def paginate_questions(request):
+def paginate_questions(request, questions_list):
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
 
-    questions = get_question_list()
-    current_questions = questions[start:end]
-    return current_questions
+    questions = [question.format() for question in questions_list]
+    paginated_questions = questions[start:end]
+    return paginated_questions
 
 
 def get_category_list():
@@ -28,12 +29,6 @@ def get_category_list():
     for category in Category.query.all():
         categories[category.id] = category.type
     return categories
-
-
-def get_question_list():
-    questions = Question.query.all()
-    formatted_questions = [question.format() for question in questions]
-    return formatted_questions
 
 
 def create_app(test_config=None):
@@ -62,17 +57,17 @@ def create_app(test_config=None):
             'categories': get_category_list(),
         })
 
-    @app.route('/questions', methods=['GET'])
+    @app.route('/questions', methods=['GET', 'POST'])
     def get_questions():
-        questions = get_question_list()
-        paginated_questions = paginate_questions(request)
+        questions_list = Question.query.all()
+        paginated_questions = paginate_questions(request, questions_list)
         if len(paginated_questions) == 0:
             abort(404)
 
         return jsonify({
             'success': True,
             'questions': paginated_questions,
-            'total_questions': len(questions),
+            'total_questions': len(questions_list),
             'categories': get_category_list()
         })
 
@@ -98,12 +93,13 @@ def create_app(test_config=None):
                 abort(404)
 
             question.delete()
-            current_questions = paginate_questions(request)
+            questions_list = Question.query.all()
+            paginated_questions = paginate_questions(request, questions_list)
 
             return jsonify({
                 'success': True,
                 'deleted': question_id,
-                'questions': current_questions,
+                'questions': paginated_questions,
                 'total_questions': len(Question.query.all())
             })
         except:
@@ -120,7 +116,6 @@ def create_app(test_config=None):
     @app.route('/questions', methods=['POST'])
     def create_question():
         body = request.get_json()
-        print(body)
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
         new_category = body.get('category', None)
@@ -131,7 +126,8 @@ def create_app(test_config=None):
                                 difficulty=new_difficulty,
                                 )
             question.insert()
-            paginated_questions = paginate_questions(request)
+            questions_list = Question.query.all()
+            paginated_questions = paginate_questions(request, questions_list)
 
             return jsonify({
                 'success': True,
@@ -153,6 +149,23 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.  
     '''
+
+    @app.route('/questions/query', methods=['POST'])
+    def search_questions():
+        body = request.get_json()
+        search_term = body.get('searchTerm', None)
+
+        try:
+            questions_l = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+            paginated_questions = paginate_questions(request, questions_l)
+
+            return jsonify({
+                'success': True,
+                'questions': paginated_questions,
+                'total_questions': len(Question.query.all())
+            })
+        except:
+            abort(422)
 
     '''
     @TODO: 
