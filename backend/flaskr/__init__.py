@@ -57,10 +57,11 @@ def create_app(test_config=None):
             'categories': get_category_list(),
         })
 
-    @app.route('/questions', methods=['GET', 'POST'])
+    @app.route('/questions', methods=['GET'])
     def get_questions():
         questions_list = Question.query.all()
         paginated_questions = paginate_questions(request, questions_list)
+
         if len(paginated_questions) == 0:
             abort(404)
 
@@ -122,10 +123,11 @@ def create_app(test_config=None):
         new_category = body.get('category', None)
 
         try:
-
             question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty,
                                 category=new_category)
-            print(question)
+            if question is None:
+                abort(404)
+
             question.insert()
             questions = Question.query.all()
             paginated_questions = paginate_questions(request, questions)
@@ -164,7 +166,7 @@ def create_app(test_config=None):
             return jsonify({
                 'success': True,
                 'questions': paginated_questions,
-                'total_questions': len(Question.query.all())
+                'total_questions': len(questions_list)
             })
         except:
             abort(422)
@@ -185,6 +187,9 @@ def create_app(test_config=None):
         try:
             questions_list = Question.query.filter(Question.category == category_id).all()
             paginated_questions = paginate_questions(request, questions_list)
+
+            if questions_list is None:
+                abort(404)
 
             return jsonify({
                 'success': True,
@@ -212,6 +217,9 @@ def create_app(test_config=None):
 
             category_id = quiz_category.get('id', 0)
 
+            if quiz_category is None:
+                abort(404)
+
             if category_id == 0:
                 questions_list = Question.query.all()
             else:
@@ -234,7 +242,7 @@ def create_app(test_config=None):
                 'success': True
             })
 
-        except Exception as exp:
+        except:
             abort(422)
 
     '''
@@ -248,6 +256,22 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not. 
     '''
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 404,
+            "message": "Not found"
+        }), 404
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return jsonify({
+            "success": False,
+            "error": 422,
+            "message": "Unprocessable"
+        }), 422
 
     '''
     @TODO: 
