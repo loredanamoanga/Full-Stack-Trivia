@@ -88,6 +88,394 @@ GET '/categories'
 '6' : "Sports"}
 
 ```
+##Endpoints
+
+GET '/categories'
+GET '/questions'
+GET '/categories/<integer: category_id>/questions'
+POST '/questions'
+POST '/questions/search'
+POST '/quizzes'
+DELETE '/questions/<integer: question_id>'
+
+###GET '/categories'
+
+* General:
+  * Lists all the existing categories and success value
+* `curl http://127.0.0.1:5000/categories`
+
+~~~ {
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    "3": "Geography", 
+    "4": "History", 
+    "5": "Entertainment", 
+    "6": "Sports"
+  }, 
+  "success": true
+}
+~~~
+##GET '/questions'
+
+* General:
+  * Returns a list of exiting categories, a list of questions, success value and total number of questions
+  * Questions are paginated in groups of 10 starting from 1
+* `curl http://127.0.0.1:5000/questions`
+
+~~~
+{
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    "3": "Geography", 
+    "4": "History", 
+    "5": "Entertainment", 
+    "6": "Sports"
+  }, 
+  "questions": [
+    {
+      "answer": "Muhammad Ali", 
+      "category": 4, 
+      "difficulty": 1, 
+      "id": 9, 
+      "question": "What boxer's original name is Cassius Clay?"
+    }, 
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+    {
+      "answer": "Tom Cruise", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 4, 
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    }, 
+    {
+      "answer": "kjselohtkl;f", 
+      "category": 1, 
+      "difficulty": 1, 
+      "id": 79, 
+      "question": "lksdhflkdfj"
+    }, 
+    {
+      "answer": "Brazil", 
+      "category": 6, 
+      "difficulty": 3, 
+      "id": 10, 
+      "question": "Which is the only team to play in every soccer World Cup tournament?"
+    }, 
+    {
+      "answer": "Uruguay", 
+      "category": 6, 
+      "difficulty": 4, 
+      "id": 11, 
+      "question": "Which country won the first ever soccer World Cup in 1930?"
+    }, 
+    {
+      "answer": "George Washington Carver", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 12, 
+      "question": "Who invented Peanut Butter?"
+    }, 
+    {
+      "answer": "Lake Victoria", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 13, 
+      "question": "What is the largest lake in Africa?"
+    }, 
+    {
+      "answer": "The Palace of Versailles", 
+      "category": 3, 
+      "difficulty": 3, 
+      "id": 14, 
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    }, 
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 19
+}
+
+~~~
+
+###GET '/categories/<integer: category_id>/questions'
+
+* General:
+  * Lists all the existing questions that belong to a certain category, the success  value and total number of questions in this case
+* `curl http://127.0.0.1:5000/categories/1/questions`
+
+~~~ 
+{
+  "questions": [
+    {
+      "answer": "kjselohtkl;f", 
+      "category": 1, 
+      "difficulty": 1, 
+      "id": 79, 
+      "question": "lksdhflkdfj"
+    }, 
+    {
+      "answer": "The Liver", 
+      "category": 1, 
+      "difficulty": 4, 
+      "id": 20, 
+      "question": "What is the heaviest organ in the human body?"
+    }, 
+    {
+      "answer": "Alexander Fleming", 
+      "category": 1, 
+      "difficulty": 3, 
+      "id": 21, 
+      "question": "Who discovered penicillin?"
+    }, 
+    {
+      "answer": "Blood", 
+      "category": 1, 
+      "difficulty": 4, 
+      "id": 22, 
+      "question": "Hematology is a branch of medicine involving the study of what?"
+    }, 
+    {
+      "answer": "Mercury", 
+      "category": 1, 
+      "difficulty": 1, 
+      "id": 82, 
+      "question": "What is the nearest planet to the sun?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 19
+}
+
+~~~
+
+
+
+###POST '/questions'
+
+* General:
+  * Creates a new question using the submitted question, given answer set difficulty and category.
+  * Returns  the created value,the question id , success value, and the first paginated list of questions to update the frontend.
+* `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d 
+'{"question":"1 + 1","answer":"2","difficulty":1,"category":1}'`
+
+~~~ {
+ {
+  "created": 90, 
+  "id": 90, 
+  "questions": [
+    {
+      "answer": "Muhammad Ali", 
+      "category": 4, 
+      "difficulty": 1, 
+      "id": 9, 
+      "question": "What boxer's original name is Cassius Clay?"
+    }, 
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+    {
+      "answer": "Tom Cruise", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 4, 
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    }, 
+    {
+      "answer": "Brazil", 
+      "category": 6, 
+      "difficulty": 3, 
+      "id": 10, 
+      "question": "Which is the only team to play in every soccer World Cup tournament?"
+    }, 
+    {
+      "answer": "Uruguay", 
+      "category": 6, 
+      "difficulty": 4, 
+      "id": 11, 
+      "question": "Which country won the first ever soccer World Cup in 1930?"
+    }, 
+    {
+      "answer": "George Washington Carver", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 12, 
+      "question": "Who invented Peanut Butter?"
+    }, 
+    {
+      "answer": "Lake Victoria", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 13, 
+      "question": "What is the largest lake in Africa?"
+    }, 
+    {
+      "answer": "The Palace of Versailles", 
+      "category": 3, 
+      "difficulty": 3, 
+      "id": 14, 
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    }, 
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }, 
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 10
+}
+
+~~~
+##POST '/questions/search'
+* General
+  * Returns a list of questions, success value and total number of questions
+  * Questions are paginated in groups of 10 if the list surpasses 10 questions
+* curl http://127.0.0.1:5000/questions/query -X POST -H "Content-Type: application/json" -d '{"searchTerm":"atom"}'
+~~~
+{
+  "questions": [
+    {
+      "answer": "Neutron", 
+      "category": 1, 
+      "difficulty": 1, 
+      "id": 89, 
+      "question": "What part of the atom has no electric charge?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 1
+}
+~~~
+  
+##POST '/quizzes'
+* General
+  * Returns a random quiz question body that belongs in the chosen category and success value 
+* `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[],"quiz_category":{"type":"Science","id":1}}'`
+~~~
+{
+  "question": {
+    "answer": "Neutron", 
+    "category": 1, 
+    "difficulty": 1, 
+    "id": 89, 
+    "question": "What part of the atom has no electric charge?"
+  }, 
+  "success": true
+}
+~~~
+
+##DELETE '/questions/<integer: question_id>'
+* General
+  * Deletes the question with the specific id and returns a list of the remaining question to  update the frontend, it also returns the success value  and the total remaining questions
+* `curl -X DELETE http://127.0.0.1:5000/questions/90`
+
+~~~
+{
+  "deleted": 90, 
+  "questions": [
+    {
+      "answer": "Muhammad Ali", 
+      "category": 4, 
+      "difficulty": 1, 
+      "id": 9, 
+      "question": "What boxer's original name is Cassius Clay?"
+    }, 
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+    {
+      "answer": "Tom Cruise", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 4, 
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    }, 
+    {
+      "answer": "Brazil", 
+      "category": 6, 
+      "difficulty": 3, 
+      "id": 10, 
+      "question": "Which is the only team to play in every soccer World Cup tournament?"
+    }, 
+    {
+      "answer": "Uruguay", 
+      "category": 6, 
+      "difficulty": 4, 
+      "id": 11, 
+      "question": "Which country won the first ever soccer World Cup in 1930?"
+    }, 
+    {
+      "answer": "George Washington Carver", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 12, 
+      "question": "Who invented Peanut Butter?"
+    }, 
+    {
+      "answer": "Lake Victoria", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 13, 
+      "question": "What is the largest lake in Africa?"
+    }, 
+    {
+      "answer": "The Palace of Versailles", 
+      "category": 3, 
+      "difficulty": 3, 
+      "id": 14, 
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    }, 
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }, 
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 24
+}
+
+~~~
 
 
 ## Testing
