@@ -86,7 +86,7 @@ def create_app(test_config=None):
 
     @app.route('/questions', methods=['POST'])
     def create_question():
-        body = request.get_json()
+        body = request.get_json(force=True)
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
         new_difficulty = body.get('difficulty', None)
@@ -117,7 +117,7 @@ def create_app(test_config=None):
 
     @app.route('/questions/query', methods=['POST'])
     def search_questions():
-        body = request.get_json()
+        body = request.get_json(force=True)
         search_term = body.get('searchTerm', None)
 
         try:
@@ -154,7 +154,7 @@ def create_app(test_config=None):
     @app.route('/quizzes', methods=['POST'])
     def get_quiz_by_category():
         try:
-            body = request.get_json()
+            body = request.get_json(force=True)
             previous_questions = body.get('previous_questions', [])
             quiz_category = body.get('quiz_category')
 
