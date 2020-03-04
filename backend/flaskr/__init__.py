@@ -81,8 +81,8 @@ def create_app(test_config=None):
                 'questions': paginated_questions,
                 'total_questions': len(Question.query.all())
             })
-        except:
-            abort(422)
+        except ValueError:
+            pass
 
     @app.route('/questions', methods=['POST'])
     def create_question():
@@ -112,8 +112,8 @@ def create_app(test_config=None):
                 'total_questions': len(paginated_questions)
             })
 
-        except:
-            abort(422)
+        except ValueError:
+            pass
 
     @app.route('/questions/query', methods=['POST'])
     def search_questions():
@@ -130,8 +130,8 @@ def create_app(test_config=None):
                 'questions': paginated_questions,
                 'total_questions': len(questions_list)
             })
-        except:
-            abort(422)
+        except ValueError:
+            pass
 
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_questions_by_category(category_id):
@@ -148,8 +148,8 @@ def create_app(test_config=None):
                 'questions': paginated_questions,
                 'total_questions': len(Question.query.all())
             })
-        except:
-            abort(422)
+        except ValueError:
+            pass
 
     @app.route('/quizzes', methods=['POST'])
     def get_quiz_by_category():
@@ -187,8 +187,8 @@ def create_app(test_config=None):
                 'success': True
             })
 
-        except:
-            abort(422)
+        except ValueError:
+            pass
 
     @app.errorhandler(404)
     def not_found(error):

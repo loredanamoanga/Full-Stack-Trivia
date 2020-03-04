@@ -16,12 +16,13 @@ class TriviaTestCase(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()
         self.database_name = "trivia"
-        self.database_path = "postgres://{}/{}".format('localhost:5432', self.database_name)
+        self.database_path = "postgres://{}/{}".format('localhost:5432',
+                                                       self.database_name)
         setup_db(self.app, self.database_path)
 
         self.new_question = {
-            'question': 'Graffiti comes from the Italian word graffiato, meaning what?',
-            'answer': 'scratched',
+            'question': 'Who painted The Scream?',
+            'answer': 'Edvard Munch',
             'difficulty': 1,
             'category': 2
         }
@@ -36,7 +37,6 @@ class TriviaTestCase(unittest.TestCase):
     def tearDown(self):
         """Executed after reach test"""
         pass
-
 
     def test_get_categories(self):
         res = self.client.get('/categories')
@@ -81,9 +81,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Unprocessable')
 
-
     def test_post_new_question(self):
-
         res = self.client.post("/questions",
                                content_type="application/json",
                                data=json.dumps(self.new_question))
@@ -142,7 +140,6 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-
 
     def test_post_quizzes(self):
         test_quiz = {
